@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStore.ProtectionParameter;
+import java.security.MessageDigest;
 import java.security.cert.CertificateEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -89,62 +90,41 @@ public class JavaGenerateCert {
         while (true) {
             try (Socket socket = server.accept()) {
                 System.out.println("Server received request: "+counter);
-                JSONObject jsonObjForData = new JSONObject();
-                JSONObject jsonObjForKeyAndData = new JSONObject();
+                JSONObject jsonObjForOriData = new JSONObject();
+                JSONObject jsonObjForOriAndHashedData = new JSONObject();
                 counter++;
                 
                 //read location data from file
                 String locationData = readFile(locationFilePath,StandardCharsets.UTF_8);
                 
-                //encrypted location data
-                //byte[] encryptedLocation = encrypt(locationData,privKey);
-                //System.out.println("Encrypted Location Data: "+encryptedLocation);
-                //get base64 encoded version of the encrypted location data
-                //String encodedData = Base64.getEncoder().encodeToString(encryptedLocation);
-                //System.out.println("Encoded EncryptedData: "+encodedData);
-                
-                //generate a Symmetric Key
-                Key secretKey = generateSymmetricKey();
-                
-                // get base64 encoded version of the key
-                String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-                System.out.println("Original Secret Key: "+encodedKey);
-                
-                //encrypt the secretKey using private key
-                byte[] encryptedKey = encrypt(encodedKey,privKey);
-                
-                //get base64 encoded version of the encrypted key
-                String encodedEncryptedKey = Base64.getEncoder().encodeToString(encryptedKey);
-                System.out.println("Encoded Encrypted Key: "+encodedEncryptedKey);
-                
-                //decrypt key using Public Key (testing)
-                PublicKey pubKey = cert.getPublicKey();
-                String decryptedKey = decrypt(encryptedKey,pubKey);
-                System.out.println("Decrypted Key: "+decryptedKey );
-                
                 //put the location data, random and currenDateTime in json object
-                jsonObjForData.put("location", new String(locationData));
-                jsonObjForData.put("randomNumber",getRandNumber());
-                jsonObjForData.put("currentDateTime",new String(getCurrentDateTime()));
-                System.out.println("Original Json Data: "+jsonObjForData.toString());
+                jsonObjForOriData.put("location", locationData);
+                jsonObjForOriData.put("randomNumber",getRandNumber());
+                jsonObjForOriData.put("currentDateTime",getCurrentDateTime().toString());
+                System.out.println("Original Json Data: "+jsonObjForOriData.toString());
                 
-                //encrypt the json string using Symmetric Key
-                byte[] encryptedJson = encrypt(jsonObjForData.toString(),secretKey);
+                //hash the json obj
+                String hashedJson = hashStringWithSHA(jsonObjForOriData.toString());
+                System.out.println("Original Hashed Json: "+hashedJson);
                 
-                //get base64 encoded version of the encrypted json data
-                String encodedEncryptedData = Base64.getEncoder().encodeToString(encryptedJson);
-                System.out.println("Encoded Encrypted Json Data: "+encodedEncryptedData);
+                //encrypt the hash using privateKey
+                byte[] encryptedHash = encrypt(hashedJson ,privKey);
                 
-                //decrypt json using Symmetric Key (testing)
-                String decryptedJsonData = decrypt(encryptedJson,secretKey);
-                System.out.println("Decrypted Json Data: "+decryptedJsonData +"\n");
+                //decrypt hash using Public Key (testing)
+                PublicKey pubKey = cert.getPublicKey();
+                String decryptedHash = decrypt(encryptedHash,pubKey);
+                System.out.println("Decrypted Hashed Json: "+decryptedHash );
                 
-                //put encoded versions of the encrypted json data and encrypted symmetric key in json Obj
-                jsonObjForKeyAndData.put("encodedEncryptedJson",encodedEncryptedData);
-                jsonObjForKeyAndData.put("encodedEncryptedKey",encodedEncryptedKey);
+                // get base64 encoded version of the encrypted hash
+                String encodedEncryptedHash = Base64.getEncoder().encodeToString(encryptedHash);
+                System.out.println("Encrypted hash: "+encodedEncryptedHash);
+                
+                //put encoded version of the encrypted hash and original json data in json Obj
+                jsonObjForOriAndHashedData.put("encodedEncryptedHash",encodedEncryptedHash);
+                jsonObjForOriAndHashedData.put("originalData",jsonObjForOriData);
                 
                 //Output the response string
-                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForKeyAndData.toString();
+                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForOriAndHashedData.toString();
                 socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
             }
         }
@@ -257,7 +237,7 @@ public class JavaGenerateCert {
    */
     public static String getCurrentDateTime()
     {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("EEE, yyyy-MMMM-dd HH:mm:ss");
         Date date = new Date();
         return dateFormat.format(date);
     }
@@ -340,5 +320,23 @@ public class JavaGenerateCert {
 	KeyGenerator generator = KeyGenerator.getInstance( "AES" );
 	SecretKey key = generator.generateKey();
 	return key;
+    }
+    
+   /**
+   * hash string and return hashed string in hex format
+   */
+    public static String hashStringWithSHA(String json) throws Exception{
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(json.getBytes("UTF-8"));
+
+        byte byteData[] = md.digest();
+        
+        //convert the byte to hex format
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < byteData.length; i++) {
+         sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        
+        return sb.toString();
     }
 }
