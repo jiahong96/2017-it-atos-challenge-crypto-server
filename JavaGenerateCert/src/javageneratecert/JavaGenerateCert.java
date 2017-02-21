@@ -58,8 +58,8 @@ public class JavaGenerateCert {
     private static final String alias = "tomcat";
     private static final char[] keyPass = "changeit".toCharArray();
     
-    private static final String keystoreFilePath = "C:\\Users\\CheahHong\\Desktop\\Java-Server-Side-Encryption\\JavaGenerateCert\\.keystore";
-    private static final String certFilePath = "C:\\Users\\CheahHong\\Desktop\\Java-Server-Side-Encryption\\JavaGenerateCert\\cacert.pem";
+    private static final String keystoreFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\.keystore";
+    private static final String certFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\cacert.pem";
     private static final String locationFilePath = "C:\\Users\\CheahHong\\Desktop\\test.txt";
     
     private static PrivateKey privKey;
@@ -105,19 +105,22 @@ public class JavaGenerateCert {
                 
                 //hash the json obj
                 String hashedJson = hashStringWithSHA(jsonObjForOriData.toString());
-                System.out.println("Original Hashed Json: "+hashedJson);
+                System.out.println("Original Hash: "+hashedJson);
                 
                 //encrypt the hash using privateKey
                 byte[] encryptedHash = encrypt(hashedJson ,privKey);
-                
-                //decrypt hash using Public Key (testing)
-                PublicKey pubKey = cert.getPublicKey();
-                String decryptedHash = decrypt(encryptedHash,pubKey);
-                System.out.println("Decrypted Hashed Json: "+decryptedHash );
+                System.out.println("encrypted hash: "+encryptedHash);
                 
                 // get base64 encoded version of the encrypted hash
                 String encodedEncryptedHash = Base64.getEncoder().encodeToString(encryptedHash);
-                System.out.println("Encrypted hash: "+encodedEncryptedHash);
+                System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
+                //decoding it (testing)
+                System.out.println("Decoded encrypted hash: "+Base64.getDecoder().decode(encodedEncryptedHash));
+                
+                //decrypt hash using Public Key (testing)
+                PublicKey pubKey = cert.getPublicKey();
+                String decryptedHash = decrypt(Base64.getDecoder().decode(encodedEncryptedHash),pubKey);
+                System.out.println("Decrypted hash: "+decryptedHash );
                 
                 //put encoded version of the encrypted hash and original json data in json Obj
                 jsonObjForOriAndHashedData.put("encodedEncryptedHash",encodedEncryptedHash);
