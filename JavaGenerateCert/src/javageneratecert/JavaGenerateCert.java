@@ -99,7 +99,7 @@ public class JavaGenerateCert {
                 
                 //put the location data, random and currenDateTime in json object
                 jsonObjForOriData.put("location", locationData);
-                jsonObjForOriData.put("randomNumber",getRandNumber());
+                //jsonObjForOriData.put("randomNumber",getRandNumber());
                 jsonObjForOriData.put("currentDateTime",getCurrentDateTime().toString());
                 System.out.println("Original Json Data: "+jsonObjForOriData.toString());
                 
