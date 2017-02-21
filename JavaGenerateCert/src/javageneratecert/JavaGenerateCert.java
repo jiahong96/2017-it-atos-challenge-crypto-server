@@ -66,6 +66,7 @@ public class JavaGenerateCert {
     private static KeyStore keyStore;
     private static X509Certificate cert;
     
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
    /**
     * @param args the command line arguments
     */
@@ -109,17 +110,17 @@ public class JavaGenerateCert {
                 
                 //encrypt the hash using privateKey
                 byte[] encryptedHash = encrypt(hashedJson ,privKey);
-                System.out.println("encrypted hash: "+encryptedHash);
                 
-                // get base64 encoded version of the encrypted hash
-                String encodedEncryptedHash = Base64.getEncoder().encodeToString(encryptedHash);
+                //convert bytes to hex string
+                String encodedEncryptedHash = bytesToHex(encryptedHash);
                 System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
+                
                 //decoding it (testing)
-                System.out.println("Decoded encrypted hash: "+Base64.getDecoder().decode(encodedEncryptedHash));
+                byte[] decoded = hexStringToByteArray(encodedEncryptedHash); 
                 
                 //decrypt hash using Public Key (testing)
                 PublicKey pubKey = cert.getPublicKey();
-                String decryptedHash = decrypt(Base64.getDecoder().decode(encodedEncryptedHash),pubKey);
+                String decryptedHash = decrypt(decoded,pubKey);
                 System.out.println("Decrypted hash: "+decryptedHash );
                 
                 //put encoded version of the encrypted hash and original json data in json Obj
@@ -341,5 +342,31 @@ public class JavaGenerateCert {
         }
         
         return sb.toString();
+    }
+    
+   /**
+   * convert bytes to hex
+   */
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+    
+   /**
+   * convert hex to bytes
+   */
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                 + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 }
