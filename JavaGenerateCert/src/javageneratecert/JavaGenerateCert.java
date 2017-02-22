@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 	
@@ -31,11 +30,7 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Random;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import org.json.simple.JSONObject;
 
 import sun.security.tools.keytool.CertAndKeyGen;
@@ -48,12 +43,12 @@ import sun.security.x509.X500Name;
 public class JavaGenerateCert {
     
     private static final int keysize = 1024;
-    private static final String commonName = "www.test.de";
+    private static final String commonName = "www.foodchain.com";
     private static final String organizationalUnit = "IT";
-    private static final String organization = "test";
-    private static final String city = "test";
-    private static final String state = "test";
-    private static final String country = "DE";
+    private static final String organization = "Techies";
+    private static final String city = "Kuching";
+    private static final String state = "Sarawak";
+    private static final String country = "Malaysia";
     private static final long validity = 1096; // 3 years
     private static final String alias = "tomcat";
     private static final char[] keyPass = "changeit".toCharArray();
@@ -99,9 +94,8 @@ public class JavaGenerateCert {
                 //read location data from file
                 String locationData = readFile(locationFilePath,StandardCharsets.UTF_8);
                 
-                //put the location data, random and currenDateTime in json object
+                //put the location data and currenDateTime in json object
                 jsonObjForOriData.put("location", locationData);
-                //jsonObjForOriData.put("randomNumber",getRandNumber());
                 jsonObjForOriData.put("currentDateTime",getCurrentDateTime().toString());
                 System.out.println("Original Json Data: "+jsonObjForOriData.toString());
                 
@@ -115,15 +109,7 @@ public class JavaGenerateCert {
                 //convert bytes to hex string
                 String encodedEncryptedHash = bytesToHex(encryptedHash);
                 System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
-                
-                //decoding it (testing)
-                byte[] decoded = hexStringToByteArray(encodedEncryptedHash); 
-                
-                //decrypt hash using Public Key (testing)
-                PublicKey pubKey = cert.getPublicKey();
-                String decryptedHash = decrypt(decoded,pubKey);
-                System.out.println("Decrypted hash: "+decryptedHash );
-                
+                            
                 //put encoded version of the encrypted hash and original json data in json Obj
                 jsonObjForOriAndHashedData.put("encodedEncryptedHash",encodedEncryptedHash);
                 jsonObjForOriAndHashedData.put("originalData",jsonObjForOriData);
@@ -168,13 +154,12 @@ public class JavaGenerateCert {
     }
     
    /**
-   * Encrypt the plain text using symmetric key OR
-   * Encrypt symmetric key using private key
+   * Encrypt string using private key
    * 
    * @param text
-   *          : original plain text
+   *          : string
    * @param key
-   *          :Secret Key/The private key
+   *          :The private key
    * @return Encrypted text
    * @throws java.lang.Exception
    */
@@ -192,34 +177,6 @@ public class JavaGenerateCert {
       }
       return cipherText;
    }
-   
-   /**
-   * Decrypt text using public key OR
-   * Decrypt Symmetric Key using public key
-   * 
-   * @param text
-   *          :encrypted text
-   * @param key
-   *          :Secret Key/The public key
-   * @return plain text
-   * @throws java.lang.Exception
-   */
-    public static String decrypt(byte[] text, Key key) {
-      byte[] decryptedText = null;
-      try {
-        // get an RSA cipher object and print the provider
-        final Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-
-        // decrypt the text using the public key
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        decryptedText = cipher.doFinal(text);
-
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-
-      return new String(decryptedText);
-    }
     
    /**
    * Read all text from file
@@ -227,7 +184,7 @@ public class JavaGenerateCert {
    * @param path
    *          :path to the text file
    * @param encoding 
-   *          :The type of CharSet
+   *          :The type of Charset encoding
    * @return plain text
    * @throws java.io.IOException
    */
@@ -248,22 +205,12 @@ public class JavaGenerateCert {
     }
     
    /**
-   * Get a random number range from 1 to 100,000
-   */
-    public static int getRandNumber()
-    {
-        Random rand = new Random(); 
-        int value = rand.nextInt((9999999 - 1) + 1) + 1;
-        return value;
-    }
-    
-   /**
    * generate key store file & cert file, then export them
    */
     public static void generateKeyStoreAndCertFile() throws Exception
     {
         //get keystore object and load it
-        keyStore = KeyStore.getInstance("JKS");
+        keyStore = KeyStore.getInstance("CaseExactJKS");
         keyStore.load(null, null);
 
         //generate a keypair
@@ -297,7 +244,7 @@ public class JavaGenerateCert {
     public static void loadKeyStoreAndGetPrivKey() throws Exception
     {
         //get keystore object 
-        keyStore = KeyStore.getInstance("JKS");
+        keyStore = KeyStore.getInstance("CaseExactJKS");
             
         //read keystore file path
         FileInputStream readStream = new FileInputStream(keystoreFilePath);
@@ -316,15 +263,6 @@ public class JavaGenerateCert {
             
         //close readStream
         readStream.close();
-    }
-    
-   /**
-   * generate and return a symmetric key
-   */
-    public static Key generateSymmetricKey() throws Exception {
-	KeyGenerator generator = KeyGenerator.getInstance( "AES" );
-	SecretKey key = generator.generateKey();
-	return key;
     }
     
    /**
@@ -356,18 +294,5 @@ public class JavaGenerateCert {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
-    }
-    
-   /**
-   * convert hex to bytes
-   */
-    public static byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                                 + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
     }
 }
