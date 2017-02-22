@@ -66,6 +66,7 @@ public class JavaGenerateCert {
     private static KeyStore keyStore;
     private static X509Certificate cert;
     
+    final protected static String cipherAlgorithm = "RSA/ECB/PKCS1Padding";
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
    /**
     * @param args the command line arguments
@@ -181,7 +182,7 @@ public class JavaGenerateCert {
       byte[] cipherText = null;
       try {
         // get an RSA cipher object and print the provider
-        final Cipher cipher = Cipher.getInstance(key.getAlgorithm());
+        final Cipher cipher = Cipher.getInstance(cipherAlgorithm);
         
         // encrypt the plain text using the private key
         cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -207,7 +208,7 @@ public class JavaGenerateCert {
       byte[] decryptedText = null;
       try {
         // get an RSA cipher object and print the provider
-        final Cipher cipher = Cipher.getInstance(key.getAlgorithm());
+        final Cipher cipher = Cipher.getInstance(cipherAlgorithm);
 
         // decrypt the text using the public key
         cipher.init(Cipher.DECRYPT_MODE, key);
