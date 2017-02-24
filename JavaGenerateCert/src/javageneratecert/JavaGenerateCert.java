@@ -214,7 +214,7 @@ public class JavaGenerateCert {
         keyStore.load(null, null);
 
         //generate a keypair
-        CertAndKeyGen keypair = new CertAndKeyGen("RSA", "SHA1WithRSA", null);
+        CertAndKeyGen keypair = new CertAndKeyGen("RSA", "SHA256withRSA", null);
         keypair.generate(keysize);
             
         //get private key from the keypair
