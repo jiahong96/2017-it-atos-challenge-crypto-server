@@ -53,9 +53,9 @@ public class JavaGenerateCert {
     private static final String alias = "tomcat";
     private static final char[] keyPass = "changeit".toCharArray();
     
-    private static final String keystoreFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\.keystore";
-    private static final String certFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\cacert.pem";
-    private static final String locationFilePath = "C:\\Users\\CheahHong\\Desktop\\test.txt";
+    private static final String keystoreFilePath = "C:\\Users\\user\\Desktop\\AtosCrypto\\JavaGenerateCert\\.keystore";
+    private static final String certFilePath = "C:\\Users\\user\\Desktop\\AtosCrypto\\JavaGenerateCert\\cacert.pem";
+    private static final String locationFilePath = "C:\\Users\\user\\Desktop\\test.txt";
     
     private static PrivateKey privKey;
     private static KeyStore keyStore;
@@ -111,8 +111,8 @@ public class JavaGenerateCert {
                 System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
                             
                 //put encoded version of the encrypted hash and original json data in json Obj
-                jsonObjForOriAndHashedData.put("encodedEncryptedHash",encodedEncryptedHash);
-                jsonObjForOriAndHashedData.put("originalData",jsonObjForOriData);
+                jsonObjForOriAndHashedData.put("encryptedHash",encodedEncryptedHash);
+                jsonObjForOriAndHashedData.put("unhashedData",jsonObjForOriData);
                 
                 //Output the response string
                 String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForOriAndHashedData.toString();
