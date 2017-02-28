@@ -30,6 +30,7 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import javax.crypto.Cipher;
 import org.json.simple.JSONObject;
 
@@ -53,9 +54,9 @@ public class JavaGenerateCert {
     private static final String alias = "tomcat";
     private static final char[] keyPass = "changeit".toCharArray();
     
-    private static final String keystoreFilePath = "C:\\Users\\user\\Desktop\\AtosCrypto\\JavaGenerateCert\\.keystore";
-    private static final String certFilePath = "C:\\Users\\user\\Desktop\\AtosCrypto\\JavaGenerateCert\\cacert.pem";
-    private static final String locationFilePath = "C:\\Users\\user\\Desktop\\test.txt";
+    private static final String keystoreFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\.keystore";
+    private static final String certFilePath = "C:\\Users\\CheahHong\\Desktop\\AtosCrypto\\JavaGenerateCert\\cacert.pem";
+    private static final String locationFilePath = "C:\\Users\\CheahHong\\Desktop\\test.txt";
     
     private static PrivateKey privKey;
     private static KeyStore keyStore;
@@ -107,8 +108,10 @@ public class JavaGenerateCert {
                 byte[] encryptedHash = encrypt(hashedJson ,privKey);
                 
                 //convert bytes to hex string
-                String encodedEncryptedHash = bytesToHex(encryptedHash);
+                //String encodedEncryptedHash = bytesToHex(encryptedHash);
+                byte[] encodedEncryptedHash = Base64.getEncoder().encode(encryptedHash);
                 System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
+                System.out.println("encrypted hash: "+encryptedHash);
                             
                 //put encoded version of the encrypted hash and original json data in json Obj
                 jsonObjForOriAndHashedData.put("encryptedHash",encodedEncryptedHash);
