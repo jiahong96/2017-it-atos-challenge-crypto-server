@@ -30,7 +30,6 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import javax.crypto.Cipher;
 import org.json.simple.JSONObject;
 
@@ -108,14 +107,13 @@ public class JavaGenerateCert {
                 byte[] encryptedHash = encrypt(hashedJson ,privKey);
                 
                 //convert bytes to hex string
-                //String encodedEncryptedHash = bytesToHex(encryptedHash);
-                byte[] encodedEncryptedHash = Base64.getEncoder().encode(encryptedHash);
-                System.out.println("Encoded encrypted hash: "+encodedEncryptedHash);
-                System.out.println("encrypted hash: "+encryptedHash);
+                String encodedEncryptedHash = bytesToHex(encryptedHash);
+                System.out.println("Encrypted hash: "+encodedEncryptedHash);
                             
                 //put encoded version of the encrypted hash and original json data in json Obj
                 jsonObjForOriAndHashedData.put("encryptedHash",encodedEncryptedHash);
                 jsonObjForOriAndHashedData.put("unhashedData",jsonObjForOriData);
+                System.out.println("Response: "+jsonObjForOriAndHashedData.toString());
                 
                 //Output the response string
                 String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForOriAndHashedData.toString();
