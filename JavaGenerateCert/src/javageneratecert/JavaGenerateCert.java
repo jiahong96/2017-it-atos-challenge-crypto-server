@@ -30,6 +30,7 @@ import java.security.MessageDigest;
 import java.security.cert.CertificateEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import org.json.simple.JSONObject;
 
@@ -109,9 +110,15 @@ public class JavaGenerateCert {
                 //convert bytes to hex string
                 String encodedEncryptedHash = bytesToHex(encryptedHash);
                 System.out.println("Encrypted hash: "+encodedEncryptedHash);
-                            
-                //put encoded version of the encrypted hash and original json data in json Obj
-                jsonObjForOriAndHashedData.put("encryptedHash",encodedEncryptedHash);
+                
+                //split hex string into equal parts
+                int splitLength = whereToSplit(encodedEncryptedHash.length());
+                String[] hashArray = splitEqually(encodedEncryptedHash,splitLength);
+                
+                //put encoded encrypted hash parts and original json data in json Obj
+                for(int i=0;i<hashArray.length;i++){
+                    jsonObjForOriAndHashedData.put("encryptedHash"+(i+1),hashArray[i]);
+                }
                 jsonObjForOriAndHashedData.put("unhashedData",jsonObjForOriData);
                 System.out.println("Response: "+jsonObjForOriAndHashedData.toString());
                 
@@ -295,5 +302,21 @@ public class JavaGenerateCert {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+    
+    public static String[] splitEqually(String src, int len) {
+        String[] result = new String[(int)Math.ceil((double)src.length()/(double)len)];
+        for (int i=0; i<result.length; i++)
+            result[i] = src.substring(i*len, Math.min(src.length(), (i+1)*len));
+        return result;
+    }
+    
+    public static int whereToSplit(int hashLength) {
+        //if length number is even number then split equal, else add one more char for first value
+        if(hashLength%2==0){
+          return hashLength/2;
+        }else{
+          return(hashLength+1)/2;
+        }
     }
 }
