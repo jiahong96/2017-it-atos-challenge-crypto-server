@@ -313,10 +313,13 @@ public class JavaGenerateCert {
     
     public static int whereToSplit(int hashLength) {
         //if length number is even number then split equal, else add one more char for first value
-        if(hashLength%2==0){
-          return hashLength/2;
+        if(hashLength%3==0){
+          return hashLength/3;
         }else{
-          return(hashLength+1)/2;
+          while(hashLength%3!=0){
+              hashLength = hashLength+1;
+          }
+          return hashLength/3;
         }
     }
 }
