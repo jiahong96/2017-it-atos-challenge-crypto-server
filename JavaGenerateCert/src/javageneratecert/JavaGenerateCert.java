@@ -1,8 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * FOOD Chain Project
+ *  
+ * This project is created by Loo Cheah Hong
+ * 2017 (c) Loo Cheah Hong
  */
+
 package javageneratecert;
 
 import java.io.File;
@@ -64,12 +66,15 @@ public class JavaGenerateCert {
     
     final protected static String cipherAlgorithm = "RSA/ECB/PKCS1Padding";
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-   /**
+    
+    /**
     * @param args the command line arguments
     */
     @SuppressWarnings("restriction")
     public static void main(String[] args) throws Exception{
         
+        // check if keystore and cert exist
+        // if not generate
         if(areKeyStorePresent()) { 
             System.out.println("Keystore file & Certificate exist\n");
             loadKeyStoreAndGetPrivKey();
@@ -81,15 +86,17 @@ public class JavaGenerateCert {
         System.out.println("Private Key: "+privKey);
         System.out.println("KeyStore: "+keyStore+"\n");
         
-        //open a server socket to listen requests
+        //open a server socket to listen to GET requests
         ServerSocket server = new ServerSocket(7080);
         int counter=0;
         System.out.println("Listening for connection on port 7080 ....\n");
         while (true) {
             try (Socket socket = server.accept()) {
-                System.out.println("Server received request: "+counter);
                 JSONObject jsonObjForOriData = new JSONObject();
                 JSONObject jsonObjForOriAndHashedData = new JSONObject();
+                
+                //request counter
+                System.out.println("Server received request: "+counter);
                 counter++;
                 
                 //read location data from file
@@ -304,6 +311,9 @@ public class JavaGenerateCert {
         return new String(hexChars);
     }
     
+   /**
+   * split a string into 3 parts 
+   */
     public static String[] splitEqually(String src, int len) {
         String[] result = new String[(int)Math.ceil((double)src.length()/(double)len)];
         for (int i=0; i<result.length; i++)
@@ -311,6 +321,9 @@ public class JavaGenerateCert {
         return result;
     }
     
+   /**
+   * decide the splitting length
+   */
     public static int whereToSplit(int hashLength) {
         //if length number is even number then split equal, else add one more char for first value
         if(hashLength%3==0){
