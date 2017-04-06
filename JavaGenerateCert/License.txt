@@ -1,6 +1,0 @@
-/*
- * FOOD Chain Project
- *  
- * This project is created by Loo Cheah Hong
- * 2017 (c) Loo Cheah Hong
- */
