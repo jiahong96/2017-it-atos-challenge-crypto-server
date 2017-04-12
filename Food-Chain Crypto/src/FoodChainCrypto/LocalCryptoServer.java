@@ -56,9 +56,9 @@ public class LocalCryptoServer {
     private static final String alias = "tomcat";
     private static final char[] keyPass = "changeit".toCharArray();
     
-    private static final String keystoreFilePath = "Btu\\.keystore";
-    private static final String certFilePath = "Btu\\Btu.pem";
-    private static final String locationFilePath = "Btu\\Btu.txt";
+    private static final String keystoreFilePath = "Kch\\.keystore";
+    private static final String certFilePath = "Kch\\Kch.pem";
+    private static final String locationFilePath = "Kch\\Kch.txt";
     
     private static PrivateKey privKey;
     private static KeyStore keyStore;
