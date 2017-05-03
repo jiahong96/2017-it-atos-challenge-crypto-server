@@ -88,6 +88,8 @@ public class LocalCryptoServer {
         
         //open a server socket to listen to GET requests
         ServerSocket server = new ServerSocket(7080);
+        
+
         int counter=0;
         System.out.println("Listening for connection on port 7080 ....\n");
         while (true) {
@@ -130,8 +132,10 @@ public class LocalCryptoServer {
                 System.out.println("Response: "+jsonObjForOriAndHashedData.toString());
                 
                 //Output the response string
-                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForOriAndHashedData.toString();
+                //String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + jsonObjForOriAndHashedData.toString();
+                String httpResponse = jsonObjForOriAndHashedData.toString();
                 socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+                socket.close();
             }
         }
     }
